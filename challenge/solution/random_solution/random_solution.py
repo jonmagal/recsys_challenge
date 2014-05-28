@@ -16,7 +16,7 @@ def random_solution():
 
     # For all (user,tweet) pairs, generate their engagement
     solutions = list()
-    random.seed(1)
+    #random.seed(1)
     for (user,tweet) in todos:
         # Random guess the engagement between 0-50
         engagement = random.randint(0,50)
