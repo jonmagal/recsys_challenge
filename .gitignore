@@ -55,3 +55,4 @@ docs/_build/
 # Project
 main.py
 settings.py
+.settings/*
