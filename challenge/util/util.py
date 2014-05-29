@@ -54,6 +54,11 @@ def write_the_solution_file(solutions, the_solution_file):
     with file(the_solution_file,'w') as outfile:
         outfile.writelines(lines)
 
+def read_sheet(file_name, fieldnames=None, delimiter=None, quotechar=None):
+    from csv import DictReader
+    reader = DictReader(open(file_name,'rb'), fieldnames = fieldnames, delimiter = delimiter, quotechar=quotechar)
+    return reader
+
 def save_sheet(file_name, content, title):        
     import csv
     csv_writer = csv.writer(open(file_name, 'wb'))
@@ -71,10 +76,11 @@ def convert_twitter_time(date):
     return time.mktime(td)
     
 def create_subdataset(the_dataset_file, output_file):
-    todos = read_the_dataset(the_dataset_file)
-    title = ['id_move', 'movie_rating', 'crawled_time', 'tweet_time', 'followers_count', 'statuses_count', 'favourites_count', 
-             'language', 'retweet_count', 'favorite_count', 'engagement']
+    todos   = read_the_dataset(the_dataset_file)
+    title   = ['id_move', 'movie_rating', 'crawled_time', 'tweet_time', 'followers_count', 'statuses_count', 
+             'favourites_count', 'language', 'retweet_count', 'favorite_count', 'engagement']
     content = []
+    
     for todo in todos:
         id_move             = todo[1]
         movie_rating        = todo[2] 
@@ -87,8 +93,9 @@ def create_subdataset(the_dataset_file, output_file):
         retweet_count       = todo[4]['retweet_count']
         favorite_count      = todo[4]['favorite_count']
         engagement          = retweet_count + favorite_count
-        row = [id_move, movie_rating, crawled_time, tweet_time, followers_count, statuses_count, favourites_count, language,
-               retweet_count, favorite_count, engagement]
+        
+        row = [id_move, movie_rating, crawled_time, tweet_time, followers_count, statuses_count, favourites_count, 
+               language, retweet_count, favorite_count, engagement]
         content.append(row)
     save_sheet(file_name = output_file, content = content, title = title)
     
