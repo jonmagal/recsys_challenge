@@ -45,11 +45,50 @@ def read_todo_from_empty_file(the_dataset_file):
 
 def write_the_solution_file(solutions, the_solution_file):
     lines = list()
-    lines.append('userid,tweetid,engagement' + '\n')
+    lines.append('userid, tweetid, engagement' + '\n')
     # Prepare the writing...
-    for (user,tweet,engagement) in solutions:
+    for (user, tweet, engagement) in solutions:
         line = str(user) + ',' + str(tweet) + ',' + str(engagement) + '\n'
         lines.append(line)
     # Actual writing
     with file(the_solution_file,'w') as outfile:
         outfile.writelines(lines)
+
+def save_sheet(file_name, content, title):        
+    import csv
+    csv_writer = csv.writer(open(file_name, 'wb'))
+    csv_writer.writerow(title)
+    for c in content:
+        csv_writer.writerow(c)
+    
+def integer_to_datetime(date):
+    import datetime
+    return datetime.datetime.fromtimestamp(date)
+
+def convert_twitter_time(date):
+    import time
+    td = time.strptime(date,'%a %b %d %H:%M:%S +0000 %Y')
+    return time.mktime(td)
+    
+def create_subdataset(the_dataset_file, output_file):
+    todos = read_the_dataset(the_dataset_file)
+    title = ['id_move', 'movie_rating', 'crawled_time', 'tweet_time', 'followers_count', 'statuses_count', 'favourites_count', 
+             'language', 'retweet_count', 'favorite_count', 'engagement']
+    content = []
+    for todo in todos:
+        id_move             = todo[1]
+        movie_rating        = todo[2] 
+        crawled_time        = todo[3]
+        tweet_time          = convert_twitter_time(todo[4]['created_at'])
+        followers_count     = todo[4]['user']['followers_count']
+        statuses_count      = todo[4]['user']['statuses_count']
+        favourites_count    = todo[4]['user']['favourites_count']
+        language            = todo[4]['user']['lang']
+        retweet_count       = todo[4]['retweet_count']
+        favorite_count      = todo[4]['favorite_count']
+        engagement          = retweet_count + favorite_count
+        row = [id_move, movie_rating, crawled_time, tweet_time, followers_count, statuses_count, favourites_count, language,
+               retweet_count, favorite_count, engagement]
+        content.append(row)
+    save_sheet(file_name = output_file, content = content, title = title)
+    
