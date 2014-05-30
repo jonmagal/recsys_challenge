@@ -19,7 +19,7 @@ def read_the_dataset(the_dataset_file):
             item_id         = line_array[1]
             rating          = line_array[2]
             scraping_time   = line_array[3]
-            tweet           = ','.join(line_array[4]) # The json format also contains commas
+            tweet           = ','.join(line_array[4:]) # The json format also contains commas
             json_obj        = json.loads(tweet) # Convert the tweet data string to a JSON object
             # Use the json_obj to easy access the tweet data
             # e.g. the tweet id: json_obj['id']
