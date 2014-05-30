@@ -1,4 +1,5 @@
-# -*- coding: utf8 -*-
+# coding: utf8
+
 '''
 Created on 28/05/2014
 
@@ -6,7 +7,7 @@ Created on 28/05/2014
 '''
 import random
 from challenge.util.util    import read_todo_from_empty_file, write_the_solution_file
-from settings               import DATASET_PATH
+from challenge.settings               import DATASET_PATH
 
 def random_solution():
     # Read the training file

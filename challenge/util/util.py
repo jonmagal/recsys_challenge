@@ -2,7 +2,7 @@
 '''
 Created on 28/05/2014
 
-@author: Jonathas Magalhães
+@author: Jonathas Magalh������es
 '''
 import json
 
@@ -19,7 +19,7 @@ def read_the_dataset(the_dataset_file):
             item_id         = line_array[1]
             rating          = line_array[2]
             scraping_time   = line_array[3]
-            tweet           = ','.join(line_array[4:]) # The json format also contains commas
+            tweet           = ','.join(line_array[4]) # The json format also contains commas
             json_obj        = json.loads(tweet) # Convert the tweet data string to a JSON object
             # Use the json_obj to easy access the tweet data
             # e.g. the tweet id: json_obj['id']
@@ -54,7 +54,7 @@ def write_the_solution_file(solutions, the_solution_file):
     with file(the_solution_file,'w') as outfile:
         outfile.writelines(lines)
 
-def read_sheet(file_name, fieldnames=None, delimiter=None, quotechar=None):
+def read_sheet(file_name, fieldnames=None, delimiter=",", quotechar="\n"):
     from csv import DictReader
     reader = DictReader(open(file_name,'rb'), fieldnames = fieldnames, delimiter = delimiter, quotechar=quotechar)
     return reader
