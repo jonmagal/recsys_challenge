@@ -159,7 +159,7 @@ def create_csv_movie_info(the_sheet_file, output_file):
     encode =sys.stdin.encoding
 
     todos   = read_sheet(the_sheet_file)
-    title   = ['id_movie', 'rating_imdb', 'number_of_votes', 'year', 'gender', 'country', 'language']
+    title   = ['id_movie', 'rating_imdb', 'number_of_votes', 'year', 'gender', 'country', 'language', 'directors']
     content = []
     
     for todo in todos:
