@@ -2,7 +2,7 @@
 '''
 Created on 28/05/2014
 
-@author: Jonathas Magalh������es
+@author: Jonathas Magalh������������������������������������������������������es
 '''
 import json
 
@@ -102,7 +102,7 @@ def create_subdataset(the_dataset_file, output_file):
 """
 API IMDbPy - http://imdbpy.sourceforge.net/
 
-É só instalar via easy_install ou pip:
+������ s������ instalar via easy_install ou pip:
     sudo pip install IMDbPY
     sudo easy_install IMDbPY
 
@@ -111,11 +111,11 @@ Com a seguinte linha no terminal:
     sudo easy_install -U setuptools 
 """
 
-def get_film_info(codigo_do_filme):
+def get_movie_info(codigo_do_filme):
     import imdb
     ia = imdb.IMDb()
     movie = ia.get_movie(codigo_do_filme)
-    return {'titulo': movie['title'], 'ano': movie['year'], 'genero': movie['genre'][0], 'pais': movie['countries'][0], 'idioma': movie['lang'][0]} 
+    return {'titulo': movie['title'], 'rating': movie['rating'], 'votes': movie['votes'], 'ano': movie['year'], 'genero': movie['genre'][0], 'pais': movie['countries'][0], 'idioma': movie['lang'][0], 'directors': movie['director']} 
 
 
 """
@@ -153,3 +153,35 @@ akas; string list; list of aka for this movie
 languages; string list; list of languages
 """
     
+def create_csv_movie_info(the_sheet_file, output_file):
+    import sys
+    import codecs
+    encode =sys.stdin.encoding
+
+    todos   = read_sheet(the_sheet_file)
+    title   = ['id_movie', 'rating_imdb', 'number_of_votes', 'year', 'gender', 'country', 'language']
+    content = []
+    
+    for todo in todos:
+        id_movie             = todo['id_move']
+        exists = False
+        for row in content:
+            if id_movie in row:
+                exists = True        
+        if not exists:
+            info = get_movie_info(id_movie)
+            rating_imdb = info['rating']
+            movie_votes = info['votes']
+            movie_year = info['ano']
+            movie_genre = info['genero']
+            movie_country = info['pais']
+            movie_lang = info['idioma']
+            
+            row = [id_movie, rating_imdb, movie_votes, movie_year, movie_genre, movie_country, movie_lang]
+            
+            for director in info['directors']:
+                row.append(director['name'].encode(encode))
+                
+            content.append(row)
+            print row
+            save_sheet(file_name = output_file, content = content, title = title)
