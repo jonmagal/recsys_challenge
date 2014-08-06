@@ -5,7 +5,35 @@ Created on 28/05/2014
 @author: Jonathas Magalh������������������������������������������������������es
 '''
 import json
+import os
 
+def discretize_solution(file_in, file_out):
+    solutions = read_sheet(file_in)
+    
+    solution_final = []
+    user = None
+    solutions_list = list(solutions)
+    temp_solution = []
+    for i in range(len(solutions_list)):
+        if user == None:
+            user = solutions_list[i]['userid']
+        temp_user = solutions_list[i]['userid']
+        if temp_user != user or i == len(solutions_list)-1:
+            if i == len(solutions_list)-1:
+                temp_solution.append(i)
+            tam = len(temp_solution)
+            for x in temp_solution:
+                solution_final.append([solutions_list[x]['userid'], solutions_list[x]['tweetid'], tam])
+                tam -= 1
+            temp_solution = []
+            user = temp_user
+            temp_solution.append(i)
+        else:
+            temp_solution.append(i)
+    solution_final = sorted(solution_final, key=lambda data: (-int(data[0]), -int(data[2]), -int(data[1])))
+    # Write the _solution file
+    write_the_solution_file(solution_final, file_out)
+    
 def read_the_dataset(the_dataset_file):
     tweets = list()
     header = True
@@ -45,7 +73,7 @@ def read_todo_from_empty_file(the_dataset_file):
 
 def write_the_solution_file(solutions, the_solution_file):
     lines = list()
-    lines.append('userid, tweetid, engagement' + '\n')
+    lines.append('userid,tweetid,engagement' + '\n')
     # Prepare the writing...
     for (user, tweet, engagement) in solutions:
         line = str(user) + ',' + str(tweet) + ',' + str(engagement) + '\n'
@@ -78,24 +106,24 @@ def convert_twitter_time(date):
 def create_subdataset(the_dataset_file, output_file):
     todos   = read_the_dataset(the_dataset_file)
     title   = ['id_move', 'movie_rating', 'crawled_time', 'tweet_time', 'followers_count', 'statuses_count', 
-             'favourites_count', 'language', 'retweet_count', 'favorite_count', 'engagement']
+             'favourites_count', 'language', 'engagement']
     content = []
     
     for todo in todos:
-        id_move             = todo[1]
-        movie_rating        = todo[2] 
-        crawled_time        = todo[3]
-        tweet_time          = convert_twitter_time(todo[4]['created_at'])
-        followers_count     = todo[4]['user']['followers_count']
-        statuses_count      = todo[4]['user']['statuses_count']
-        favourites_count    = todo[4]['user']['favourites_count']
-        language            = todo[4]['user']['lang']
-        retweet_count       = todo[4]['retweet_count']
-        favorite_count      = todo[4]['favorite_count']
+        id_move             = int(todo[1])
+        movie_rating        = int(todo[2]) 
+        crawled_time        = int(todo[3])
+        tweet_time          = int(convert_twitter_time(todo[4]['created_at']))
+        followers_count     = int(todo[4]['user']['followers_count'])
+        statuses_count      = int(todo[4]['user']['statuses_count'])
+        favourites_count    = int(todo[4]['user']['favourites_count'])
+        language            = str(todo[4]['user']['lang'])
+        retweet_count       = int(todo[4]['retweet_count'])
+        favorite_count      = int(todo[4]['favorite_count'])
         engagement          = retweet_count + favorite_count
         
         row = [id_move, movie_rating, crawled_time, tweet_time, followers_count, statuses_count, favourites_count, 
-               language, retweet_count, favorite_count, engagement]
+               language, engagement]
         content.append(row)
     save_sheet(file_name = output_file, content = content, title = title)
 
