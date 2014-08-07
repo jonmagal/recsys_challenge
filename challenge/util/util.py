@@ -7,9 +7,35 @@ Created on 28/05/2014
 import json
 import os
 
+def read_sheet(file_name, fieldnames = None, delimiter = ",", quotechar = "\n"):
+    from csv import DictReader
+    
+    reader = DictReader(open(file_name,'rb'), fieldnames = fieldnames, delimiter = delimiter, quotechar=quotechar)
+    return reader
+
+def save_sheet(file_name, content, title):        
+    import csv
+    csv_writer = csv.writer(open(file_name, 'wb'))
+    csv_writer.writerow(title)
+    for c in content:
+        csv_writer.writerow(c)
+        
+def write_the_solution_file(solutions, the_solution_file):
+    lines = list()
+    lines.append('userid,tweetid,engagement' + '\n')
+    # Prepare the writing...
+    for (user, tweet, engagement) in solutions:
+        line = str(user) + ',' + str(tweet) + ',' + str(engagement) + '\n'
+        lines.append(line)
+    # Actual writing
+    with file(the_solution_file,'w') as outfile:
+        outfile.writelines(lines)
+        
 def discretize_solution(file_in, file_out):
     solutions = read_sheet(file_in)
     
+    solutions = sorted(solutions, key=lambda data: (-int(data['userid']), -float(data['engagement']), 
+                                                                -int(data['tweetid'])))
     solution_final = []
     user = None
     solutions_list = list(solutions)
@@ -71,29 +97,6 @@ def read_todo_from_empty_file(the_dataset_file):
             todos.append((user_id,tweet_id)) # The todo (user,tweet) pair
     return todos
 
-def write_the_solution_file(solutions, the_solution_file):
-    lines = list()
-    lines.append('userid,tweetid,engagement' + '\n')
-    # Prepare the writing...
-    for (user, tweet, engagement) in solutions:
-        line = str(user) + ',' + str(tweet) + ',' + str(engagement) + '\n'
-        lines.append(line)
-    # Actual writing
-    with file(the_solution_file,'w') as outfile:
-        outfile.writelines(lines)
-
-def read_sheet(file_name, fieldnames=None, delimiter=",", quotechar="\n"):
-    from csv import DictReader
-    reader = DictReader(open(file_name,'rb'), fieldnames = fieldnames, delimiter = delimiter, quotechar=quotechar)
-    return reader
-
-def save_sheet(file_name, content, title):        
-    import csv
-    csv_writer = csv.writer(open(file_name, 'wb'))
-    csv_writer.writerow(title)
-    for c in content:
-        csv_writer.writerow(c)
-    
 def integer_to_datetime(date):
     import datetime
     return datetime.datetime.fromtimestamp(date)

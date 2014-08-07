@@ -5,201 +5,84 @@ Created on 24/07/2014
 
 @author: Jonathas Magalhães
 '''
-from challenge.settings import DATASET_PATH, PREDICTORS_CONF, TRAIN_FILE, TEST_FILE, MODEL_PATH, PREDICTION_PATH,\
-    SOLUTION_PATH, CLASSIFIERS_CONF
-from weka.core.converters   import Loader
-from weka.classifiers       import Classifier, Evaluation
-
-import weka.core.jvm            as jvm 
-import weka.core.serialization  as serialization
+from challenge.solution.solution_settings import SOLUTIONS, EVALUATOR, TEST_SOLUTION, RESULTS_FILE
 
 import os.path
-
-from challenge.util.util    import read_sheet, write_the_solution_file, discretize_solution
-from weka.filters           import Filter
-
-class Model(object):
-    '''
-    classdocs
-    '''
-    name                = None
-    classname           = None
-    options             = None
-    model_file          = None
-    prediction_file     = None
-    solution_file       = None
+from challenge.solution.dataset import DatasetManager
+from challenge.solution.model   import ModelManager
+from challenge.util.util        import discretize_solution, save_sheet, read_sheet
 
 class Solution():
-    name        = None
-    predictors  = None
-    classifiers = None
-    dataset     = None
+    name            = None
+    solution_file   = None
+    prediction      = None
+    classification  = None
+    dataset_key     = None
     
-class ModelManager(object):
-    
-    models      = []
-    train_file  = None
-    test_file   = None
-    
-    def __init__(self):
-        jvm.start(packages = True)
-        if not os.path.exists(MODEL_PATH):
-            os.makedirs(MODEL_PATH)
-        if not os.path.exists(PREDICTION_PATH):
-            os.makedirs(PREDICTION_PATH)
-        if not os.path.exists(SOLUTION_PATH):
-            os.makedirs(SOLUTION_PATH)   
-    
-    def pre_process(self, dataset):   
-        
-        filter_data = Filter(classname = 'weka.filters.unsupervised.attribute.MathExpression', 
-                             options = ['-unset-class-temporarily', '-E', "ifelse ( A>0, 1, 0 )", 
-                                        '-V', '-R', 'last'])
-        
-        filter_data.set_inputformat(dataset)
-        filtered = filter_data.filter(dataset)
-        
-        discretize_data = Filter(classname = 'weka.filters.unsupervised.attribute.NumericToNominal', 
-                             options = ['-R', 'last'])
-        
-        discretize_data.set_inputformat(filtered)
-        discretized = discretize_data.filter(filtered)
-        
-        return discretized
-             
-    def load_data(self, dfile, index = None):
-        loader = Loader(classname = 'weka.core.converters.CSVLoader')
-        data = loader.load_file(dfile = dfile)
-        if index == None:
-            data.set_class_index(data.num_attributes() - 1)
-        else:
-            data.set_class_index(index)
-        return data
-
-    def set_datafile(self, train_file = None, test_file = None):
-        if train_file == None:
-            self.train_file = TRAIN_FILE
-        else:
-            self.train_file = train_file
-        
-        if test_file == None:
-            self.test_file = TEST_FILE
-        else:
-            self.test_file = test_file
-        
-    def set_models(self, models_conf = None):
-        if models_conf == None:
-            models_conf = PREDICTORS_CONF
-    
-        for model in models_conf:
-            model_obj = Model()
-            model_obj.name         = model['name']
-            model_obj.classname         = model['classname']
-            model_obj.options           = model['options']
-            model_obj.model_file        = model['model_file']
-            model_obj.prediction_file   = model['prediction_file']
-            model_obj.solution_file     = model['solution_file']
-            self.models.append(model_obj)
-    
-    def train_classifiers_models(self):
-        self.set_datafile()
-        self.set_models(CLASSIFIERS_CONF)
-        
-        training_data   = None
-        
-        for model in self.models:
-            if os.path.isfile(model.model_file):
-                print 'Model already treined.'
+    def create_solution(self, dataset):
+        models_manager = ModelManager()
+        if os.path.isfile(self.solution_file):
+            print 'Solution already created.'
+        elif self.classification == None:
+            if self.prediction == 'mean':
+                models = models_manager.get_models(model_key = self.prediction)
+                solutions = read_sheet(file_in = models[0].prediction_file)
+                
+            elif self.prediction == 'median':
+                pass
+            elif self.prediction == 'ranking':
+                pass
             else:
-                if training_data == None:
-                    training_data = self.load_data(dfile = self.train_file)
-                    training_data = self.pre_process(dataset = training_data) 
-                
-                model_weka = Classifier(classname = model.classname, options = model.options) 
-                model_weka.build_classifier(data = training_data)
-                serialization.write(filename = model.model_file, jobject = model_weka)
-                
-    def test_classifiers(self):
-        self.set_datafile()
-        self.set_models(CLASSIFIERS_CONF)
+                models = models_manager.get_models(model_key = self.prediction)
+                discretize_solution(file_in = models[0].prediction_file, file_out = self.solution_file)
+            print 'Solution created.'
+        else:
+            pass
         
-        test_data       = None
         
-        for model in self.models:
-            if not os.path.isfile(model.model_file):
-                print 'Impossible training this model. It should be trained first.'
-        
-            else: 
-                if test_data == None:
-                    test_data = self.load_data(dfile = self.test_file)
-                    test_data = self.pre_process(dataset = test_data) 
-                
-                model_weka = Classifier(jobject = serialization.read(model.model_file)) 
-                #model_weka.build_classifier(data = training_data)
-                #serialization.write(filename = model.model_file, jobject = model_weka)
-                
-                evaluation = Evaluation(data = test_data)
-                evaluation.test_model(classifier = model_weka, data = test_data)
-                
-                print model.name, evaluation.kappa(), evaluation.precision(class_index = 0)
+class SolutionManager():
+    
+    solutions   = []
+    datasets    = None
             
-    def train_predictor_models(self):
-        self.set_datafile()
-        self.set_models()
+    def _set_solutions(self):
+        for solution in SOLUTIONS:
+            solution_obj                = Solution()
+            solution_obj.name           = solution['name']
+            solution_obj.prediction     = solution['prediction']
+            solution_obj.classification = solution['classification']
+            solution_obj.dataset_key    = solution['dataset_key']
+            solution_obj.solution_file  = solution['solution_file']
+            
+            self.solutions.append(solution_obj)
+    
+    def _set_datasets(self): 
+        dataset_manager = DatasetManager()
+        self.datasets = dataset_manager.get_datasets()
         
-        training_data   = None
-        test_data       = None
+    def create_solutions(self):
+        self._set_solutions()
+        self._set_datasets()
+        for solution in self.solutions:
+            solution.create_solution(dataset = self.datasets[solution.dataset_key])
     
-        for model in self.models:
-            if not os.path.isfile(model.prediction_file):
-                if training_data == None:
-                    training_data   = self.load_data(dfile = self.train_file)
-                if test_data == None:
-                    test_data       = self.load_data(dfile = self.test_file)
-                
-                model_weka = Classifier(classname = model.classname, options = model.options) 
-                model_weka.build_classifier(data = training_data)
+    def evaluate_solutions(self):
+        from subprocess import Popen, PIPE, STDOUT
         
-                evaluation = Evaluation(data = test_data)
-                evaluation.test_model(classifier = model_weka, data = test_data)
-                
-                predictions = evaluation.predictions()
-                print 'Model trained. Now saving the model and predictions...'
-                
-                rows        = read_sheet(file_name = DATASET_PATH + 'empty_real_solution.dat')
-                solutions = []
-    
-                for row in rows:
-                    solution = {}
-                    solution['userid']      = row['userid']
-                    solution['tweetid']     = row['tweetid']
-                    solution['engagement']  = predictions.pop(0).predicted()
-                    solutions.append(solution)
-                
-                solutions = sorted(solutions, key=lambda data: (-int(data['userid']), -float(data['engagement']), 
-                                                                -int(data['tweetid'])))
-    
-                solution_final = []
-    
-                for solution in solutions:
-                    solution_final.append([solution['userid'], solution['tweetid'], solution['engagement']])
-                # Write the _solution file
-                write_the_solution_file(solution_final, model.prediction_file)
-                serialization.write(filename = model.model_file, jobject = model_weka)
-                
-                print 'Models and predictions saved with success.'
-            else:
-                print 'Model already treined.'
-                
-    def generate_solution(self):
-        for model in self.models:
-            discretize_solution(file_in = model.prediction_file, file_out = model.solution_file)
-    
-    def test_pre_process_data(self):
-        self.set_datafile()
-        #self.set_models()
-        test_data   = self.load_data(dfile = self.test_file)
-        #print type(test_data)
-        filtered    = self.pre_process(test_data)
-        print filtered
-    
+        rows = []
+        title = ['Name', 'Prediction', 'Classification', 'DataSet', 'nDCG']
+        self._set_solutions()
+        for solution in self.solutions:
+            row = []
+            p = Popen(['java','-jar', EVALUATOR, solution.solution_file, TEST_SOLUTION], stdout = PIPE, 
+                             stderr = STDOUT)
+            
+            ndcg = 0.0
+            for line in p.stdout:
+                if 'nDCG@10:' in line:
+                    ndcg = line.replace('nDCG@10:', '')
+                    ndcg = float(ndcg)
+                    break
+            row = [solution.name, solution.prediction, solution.classification, solution.dataset_key, ndcg]
+            rows.append(row)
+        save_sheet(file_name = RESULTS_FILE, content = rows, title = title)
