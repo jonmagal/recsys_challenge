@@ -7,7 +7,7 @@ Created on 07/08/2014
 '''
 
 from challenge.settings import DATASET_PATH
-from challenge.solution.solution_settings import PREDICTORS_CONF, CLASSIFIERS_CONF
+from challenge.solution.solution_settings import REGRESSORS_CONF, CLASSIFIERS_CONF
 
 from weka.classifiers       import Classifier, Evaluation
 
@@ -16,6 +16,7 @@ import weka.core.serialization  as serialization
 
 import os.path
 from challenge.util.util import read_sheet, write_the_solution_file
+from challenge.solution.dataset import DataSet
 
 
 class Model(object):
@@ -44,10 +45,6 @@ class Model(object):
         elif not os.path.isfile(self.model_file):
             print 'Impossible testing this model. It should be trained first.'
         else: 
-            if test_data == None:
-                test_data = self.load_data(dfile = self.test_file)
-                test_data = self.pre_process(dataset = test_data) 
-            
             model_weka = Classifier(jobject = serialization.read(self.model_file)) 
             evaluation = Evaluation(data = test_data)
             evaluation.test_model(classifier = model_weka, data = test_data)
@@ -60,17 +57,27 @@ class Model(object):
                 solution = [row['userid'], row['tweetid'], predictions.pop(0).predicted()]
                 solutions.append(solution)
             write_the_solution_file(solutions, self.prediction_file)
-            
+            print 'Model ' + self.name + ' tested.'
     
+    def test_evaluate(self, test_data):
+        if not os.path.isfile(self.model_file):
+            print 'Impossible testing this model. It should be trained first.'
+        else: 
+            model_weka = Classifier(jobject = serialization.read(self.model_file)) 
+            evaluation = Evaluation(data = test_data)
+            evaluation.test_model(classifier = model_weka, data = test_data)
+            print evaluation.to_summary()
+            
 class ModelManager(object):
     
-    def get_models(self, model_key, model_type = 'predictor'):
-        if model_type == 'predictor':
-            models_conf = PREDICTORS_CONF
-        else:
+    def get_models(self, model_key = 'None', model_type = 'regressor'):
+        models_conf = None
+        if model_type == 'regressor':
+            models_conf = REGRESSORS_CONF
+        elif model_type == 'classifier':
             models_conf = CLASSIFIERS_CONF
-        if model_key == 'mean' or model_key == 'median' or model_key == 'ranking':
-            
+        
+        if model_key == 'votation' or model_key == 'mean' or model_key == 'median' or model_key == 'ranking' or model_key == 'sum' or model_key == 'None':
             return self._set_models(models_conf.values())
         else:
             return self._set_models([models_conf[model_key]])
@@ -88,7 +95,32 @@ class ModelManager(object):
             models.append(model_obj)
         return models
     
+    def train_models(self, dataset):
+        predictors  = self.get_models()
+        classifiers = self.get_models(model_type = 'classifier')
+        
+        for predictor in predictors:
+            predictor.train(dataset.training_data_regression)
+            
+        for classifier in classifiers:
+            classifier.train(dataset.training_data_classification)
+            
+    def test_models(self, dataset):
+        predictors  = self.get_models()
+        classifiers = self.get_models(model_type = 'classifier')
+        
+        for predictor in predictors:
+            predictor.test(dataset.test_data_regression)
+        
+        for classifier in classifiers:
+            classifier.test(dataset.test_data_classification)
+        
+        
+        
+         
     
+
+            
     """
     train_file  = None
     test_file   = None  

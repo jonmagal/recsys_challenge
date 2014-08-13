@@ -8,14 +8,14 @@ from challenge.settings import DATASET_PATH, MODEL_PATH, PREDICTION_PATH, SOLUTI
 
 EVALUATOR       = SOLUTION_PATH + 'rscevaluator-0.14-jar-with-dependencies.jar'
 TEST_SOLUTION   = SOLUTION_PATH + 'test_solution.dat'
-RESULTS_FILE    = PATH + 'results'
+RESULTS_FILE    = PATH + 'results.csv'
 
 DATASETS_CONF = {'tweets':
                  {'training_file'   : DATASET_PATH + 'training_engagement.csv',
                   'test_file'       : DATASET_PATH + 'test_engagement.csv'},
                  }
 
-PREDICTORS_CONF = {'linear_regression1':
+REGRESSORS_CONF = {'linear_regression1':
                    {'name'             : 'linear_regression1',
                     'classname'        : 'weka.classifiers.functions.LinearRegression',
                     'options'          : ['-S', '0', '-R', '1.0E-8'],
@@ -108,56 +108,62 @@ CLASSIFIERS_CONF = {'naive_bayes1':
                     } 
 
 SOLUTIONS = [{'name'            : 's1',
-              'prediction'      : 'linear_regression1',
+              'regression'      : 'linear_regression1',
               'classification'  : None,
               'dataset_key'     : 'tweets',
               'solution_file'   : SOLUTION_PATH + 's1_solution.dat', },
              
              {'name'            : 's2',
-              'prediction'      : 'linear_regression2',
+              'regression'      : 'linear_regression2',
               'classification'  : None,
               'dataset_key'     : 'tweets',
               'solution_file'   : SOLUTION_PATH + 's2_solution.dat',},
              
              {'name'            : 's3',
-              'prediction'      : 'linear_regression3',
+              'regression'      : 'linear_regression3',
               'classification'  : None,
               'dataset_key'     : 'tweets',
               'solution_file'   : SOLUTION_PATH + 's3_solution.dat',},
              
              {'name'            : 's4',
-              'prediction'      : 'pace_regression1',
+              'regression'      : 'pace_regression1',
               'classification'  : None,
               'dataset_key'     : 'tweets',
               'solution_file'   : SOLUTION_PATH + 's4_solution.dat',},
              
              {'name'            : 's5',
-              'prediction'      : 'tree_m5p1',
+              'regression'      : 'tree_m5p1',
               'classification'  : None,
               'dataset_key'     : 'tweets',
               'solution_file'   : SOLUTION_PATH + 's5_solution.dat',},
              
              {'name'            : 's6',
-              'prediction'      : 'tree_m5p2',
+              'regression'      : 'tree_m5p2',
               'classification'  : None,
               'dataset_key'     : 'tweets',
               'solution_file'   : SOLUTION_PATH + 's6_solution.dat',},
              
              {'name'            : 's7',
-              'prediction'      : 'mean',
+              'regression'      : 'mean',
               'classification'  : None,
               'dataset_key'     : 'tweets',
               'solution_file'   : SOLUTION_PATH + 's7_solution.dat',},
              
              {'name'            : 's8',
-              'prediction'      : 'median',
+              'regression'      : 'median',
               'classification'  : None,
               'dataset_key'     : 'tweets',
               'solution_file'   : SOLUTION_PATH + 's8_solution.dat',},
              
              {'name'            : 's9',
-              'prediction'      : 'ranking',
+              'regression'      : 'ranking',
               'classification'  : None,
               'dataset_key'     : 'tweets',
               'solution_file'   : SOLUTION_PATH + 's9_solution.dat',},
+             
+             {'name'            : 's10',
+              'regression'      : 'tree_m5p1',
+              'classification'  : 'naive_bayes2',
+              'dataset_key'     : 'tweets',
+              'solution_file'   : SOLUTION_PATH + 's10_solution.dat',},
              ]

@@ -15,10 +15,11 @@ def read_sheet(file_name, fieldnames = None, delimiter = ",", quotechar = "\n"):
 
 def save_sheet(file_name, content, title):        
     import csv
-    csv_writer = csv.writer(open(file_name, 'wb'))
-    csv_writer.writerow(title)
-    for c in content:
-        csv_writer.writerow(c)
+    with open(file_name, 'w') as f:
+        csv_writer = csv.writer(f)
+        csv_writer.writerow(title)
+        for c in content:
+            csv_writer.writerow(c)
         
 def write_the_solution_file(solutions, the_solution_file):
     lines = list()
@@ -30,10 +31,38 @@ def write_the_solution_file(solutions, the_solution_file):
     # Actual writing
     with file(the_solution_file,'w') as outfile:
         outfile.writelines(lines)
-        
-def discretize_solution(file_in, file_out):
-    solutions = read_sheet(file_in)
+
+def ranking_prediction(predictions):
+    solutions = sorted(predictions, key=lambda data: (-int(data['userid']), -float(data['engagement']), 
+                                                                -int(data['tweetid'])))
+    solution_final = []
+    user = None
+    solutions_list = list(solutions)
+    temp_solution = []
+    for i in range(len(solutions_list)):
+        if user == None:
+            user = solutions_list[i]['userid']
+        temp_user = solutions_list[i]['userid']
+        if temp_user != user or i == len(solutions_list)-1:
+            if i == len(solutions_list)-1:
+                temp_solution.append(i)
+            tam = len(temp_solution)
+            for x in temp_solution:
+                solution_final.append({'userid': solutions_list[x]['userid'], 'tweetid': solutions_list[x]['tweetid'], 
+                                       'engagement': tam})
+                tam -= 1
+            temp_solution = []
+            user = temp_user
+            temp_solution.append(i)
+        else:
+            temp_solution.append(i)
+    return solution_final
     
+def discretize_solution(file_out, file_in = None, prediction_in = None):
+    if prediction_in == None:
+        solutions = read_sheet(file_in)
+    else:
+        solutions = prediction_in
     solutions = sorted(solutions, key=lambda data: (-int(data['userid']), -float(data['engagement']), 
                                                                 -int(data['tweetid'])))
     solution_final = []
