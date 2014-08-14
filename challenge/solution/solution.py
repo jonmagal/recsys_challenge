@@ -16,7 +16,7 @@ from challenge.solution.model   import ModelManager
 from challenge.util.util        import discretize_solution, save_sheet, read_sheet, write_the_solution_file,\
     ranking_prediction
 import itertools
-from challenge.settings import SOLUTION_PATH
+from challenge.settings import SOLUTION_PATH, DATASET_PATH
 
 class Solution():
     name            = None
@@ -115,12 +115,13 @@ class SolutionManager():
     solutions   = []
     datasets    = None
     
-    def __init__(self):
-        self._set_solutions()
-        self._set_datasets()
-        for dataset_key in self.datasets:
-            dataset = self.datasets[dataset_key] 
-            self._train_test_models(dataset)
+    def __init__(self, train = True):
+        #self._set_solutions()
+        #self._set_datasets()
+        if train == True:
+            for dataset_key in self.datasets:
+                dataset = self.datasets[dataset_key] 
+                self._train_test_models(dataset)
         
     def _set_solutions(self):
         classifier_keys = ['None'] + CLASSIFIERS_CONF.keys() + ['votation']
@@ -182,3 +183,14 @@ class SolutionManager():
             row = [solution.name, solution.regression, solution.classification, solution.dataset_key, ndcg]
             rows.append(row)
         save_sheet(file_name = RESULTS_FILE, content = rows, title = title)
+        
+    def test_solution(self):
+        rows        = read_sheet(file_name = DATASET_PATH + 'empty_real_solution.dat')
+        solutions = []
+
+        for row in rows:
+            solution = {'userid': row['userid'], 'tweetid': row['tweetid'], 'engagement': 0.0}
+            solutions.append(solution)
+        discretize_solution(prediction_in = solutions, file_out = DATASET_PATH + 'teste_zeros.dat')
+        #write_the_solution_file(solutions, self.prediction_file)
+        

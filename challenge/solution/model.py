@@ -33,6 +33,7 @@ class Model(object):
         if os.path.isfile(self.model_file):
             print 'Model ' + self.name + ' already trained.'
         else:
+            print 'Starting to train model ' + self.name + '.'
             model_weka = Classifier(classname = self.classname, options = self.options) 
             
             model_weka.build_classifier(data = training_data)
@@ -45,6 +46,7 @@ class Model(object):
         elif not os.path.isfile(self.model_file):
             print 'Impossible testing this model. It should be trained first.'
         else: 
+            print 'Starting to test model ' + self.name + '.'
             model_weka = Classifier(jobject = serialization.read(self.model_file)) 
             evaluation = Evaluation(data = test_data)
             evaluation.test_model(classifier = model_weka, data = test_data)
