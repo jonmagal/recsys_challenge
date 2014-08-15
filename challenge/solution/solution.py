@@ -5,7 +5,7 @@ Created on 24/07/2014
 
 @author: Jonathas Magalhães
 '''
-from challenge.solution.solution_settings import SOLUTIONS, EVALUATOR, TEST_SOLUTION, RESULTS_FILE, CLASSIFIERS_CONF,\
+from challenge.solution.solution_settings import EVALUATOR, TEST_SOLUTION, RESULTS_FILE, CLASSIFIERS_CONF,\
     REGRESSORS_CONF
 
 import os.path
@@ -40,6 +40,10 @@ class Solution():
         
         return {'userid': v1, 'tweetid': v2, 'engagement': engagement}
     
+    def _order(self, solution):
+        return sorted(solution, key=lambda data: (-int(data['userid']), -int(data['tweetid']), 
+                                                                -int(data['engagement'])))
+        
     def _combine_classifications_regression(self, regression_solution, *classification_solutions):
         v1 = classification_solutions[0]['userid']
         v2 = classification_solutions[0]['tweetid']
@@ -49,26 +53,20 @@ class Solution():
         number_votes    = len(votes)
         
         if number_votes >= majority:
-            v3 = 0
-        else:
             v3 = regression_solution['engagement']
+        else:
+            v3 = float(regression_solution['engagement'])+1000
         return {'userid': v1, 'tweetid': v2, 'engagement': v3}
-        
-    def _order(self, solution):
-        return sorted(solution, key=lambda data: (-int(data['userid']), -int(data['tweetid']), 
-                                                                -int(data['engagement'])))
         
     def _combine_classification_regression(self, regression_solution, classification_solution):
         v1 = regression_solution['userid']
         v2 = regression_solution['tweetid']
         if float(classification_solution['engagement']) == 0.0:
-            v3 = 0
-        else:
             v3 = regression_solution['engagement']
+        else:
+            v3 = float(regression_solution['engagement'])+1000
         return {'userid': v1, 'tweetid': v2, 'engagement': v3}
     
-    def copyf(self, dictlist, key, valuelist):
-        return [dictio for dictio in dictlist if dictio[key] in valuelist]
                
     def create_solution(self, dataset):
         models_manager = ModelManager()
@@ -81,7 +79,8 @@ class Solution():
                 discretize_solution(file_in = models[0].prediction_file, file_out = self.solution_file)
             else:
                 if self.regression == 'ranking':
-                    solutions_models    = [read_sheet(file_name = SOLUTION_PATH + 's' + str(i) + '_solution.dat') for i in range(1, 9)]
+                    solutions_models    = [read_sheet(file_name = SOLUTION_PATH + 's' + str(i) + '_solution.dat') 
+                                           for i in range(1, 9)]
                     regressions         = map(lambda x: self._order(x), solutions_models)
             
                 else:
@@ -116,8 +115,8 @@ class SolutionManager():
     datasets    = None
     
     def __init__(self, train = True):
-        #self._set_solutions()
-        #self._set_datasets()
+        self._set_solutions()
+        self._set_datasets()
         if train == True:
             for dataset_key in self.datasets:
                 dataset = self.datasets[dataset_key] 
@@ -125,7 +124,7 @@ class SolutionManager():
         
     def _set_solutions(self):
         classifier_keys = ['None'] + CLASSIFIERS_CONF.keys() + ['votation']
-        regression_keys = REGRESSORS_CONF.keys() + ['mean', 'median', 'ranking', 'sum'] 
+        regression_keys = REGRESSORS_CONF.keys() + ['mean', 'median', 'ranking'] 
         datasets_keys   = ['tweets']
         
         solutions_combinations = itertools.product(classifier_keys, regression_keys, datasets_keys)

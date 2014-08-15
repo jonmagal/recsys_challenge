@@ -84,7 +84,7 @@ CLASSIFIERS_CONF = {'naive_bayes1':
                     'svm1':
                     {'name'            : 'svm1',
                     'classname'        : 'weka.classifiers.functions.LibSVM',
-                    'options'          : ['-S', '0',],
+                    'options'          : ['-K', '0',],
                     'model_file'       : MODEL_PATH + 'svm1.model',
                     'prediction_file'  : PREDICTION_PATH + 'svm1_prediction.dat',
                     'solution_file'    : SOLUTION_PATH + 'svm1_solution.dat', },
@@ -92,78 +92,17 @@ CLASSIFIERS_CONF = {'naive_bayes1':
                     'svm2':
                     {'name'            : 'svm2',
                     'classname'        : 'weka.classifiers.functions.LibSVM',
-                    'options'          : ['-K', '0',],
+                    'options'          : ['-K', '3',],
                     'model_file'       : MODEL_PATH + 'svm2.model',
                     'prediction_file'  : PREDICTION_PATH + 'svm2_prediction.dat',
                     'solution_file'    : SOLUTION_PATH + 'svm2_solution.dat', },
                     
-                    'svm3':
-                    {'name'            : 'svm3',
-                    'classname'        : 'weka.classifiers.functions.LibSVM',
-                    'options'          : ['-K', '3',],
-                    'model_file'       : MODEL_PATH + 'svm3.model',
-                    'prediction_file'  : PREDICTION_PATH + 'svm3_prediction.dat',
-                    'solution_file'    : SOLUTION_PATH + 'svm3_solution.dat', },
+                    'ibk1':
+                    {'name'            : 'ibk1',
+                    'classname'        : 'weka.classifiers.lazy.IBk',
+                    'options'          : ['-K', '11',],
+                    'model_file'       : MODEL_PATH + 'ibk1.model',
+                    'prediction_file'  : PREDICTION_PATH + 'ibk1_prediction.dat',
+                    'solution_file'    : SOLUTION_PATH + 'ibk1_solution.dat', },
                     
                     } 
-
-SOLUTIONS = [{'name'            : 's1',
-              'regression'      : 'linear_regression1',
-              'classification'  : None,
-              'dataset_key'     : 'tweets',
-              'solution_file'   : SOLUTION_PATH + 's1_solution.dat', },
-             
-             {'name'            : 's2',
-              'regression'      : 'linear_regression2',
-              'classification'  : None,
-              'dataset_key'     : 'tweets',
-              'solution_file'   : SOLUTION_PATH + 's2_solution.dat',},
-             
-             {'name'            : 's3',
-              'regression'      : 'linear_regression3',
-              'classification'  : None,
-              'dataset_key'     : 'tweets',
-              'solution_file'   : SOLUTION_PATH + 's3_solution.dat',},
-             
-             {'name'            : 's4',
-              'regression'      : 'pace_regression1',
-              'classification'  : None,
-              'dataset_key'     : 'tweets',
-              'solution_file'   : SOLUTION_PATH + 's4_solution.dat',},
-             
-             {'name'            : 's5',
-              'regression'      : 'tree_m5p1',
-              'classification'  : None,
-              'dataset_key'     : 'tweets',
-              'solution_file'   : SOLUTION_PATH + 's5_solution.dat',},
-             
-             {'name'            : 's6',
-              'regression'      : 'tree_m5p2',
-              'classification'  : None,
-              'dataset_key'     : 'tweets',
-              'solution_file'   : SOLUTION_PATH + 's6_solution.dat',},
-             
-             {'name'            : 's7',
-              'regression'      : 'mean',
-              'classification'  : None,
-              'dataset_key'     : 'tweets',
-              'solution_file'   : SOLUTION_PATH + 's7_solution.dat',},
-             
-             {'name'            : 's8',
-              'regression'      : 'median',
-              'classification'  : None,
-              'dataset_key'     : 'tweets',
-              'solution_file'   : SOLUTION_PATH + 's8_solution.dat',},
-             
-             {'name'            : 's9',
-              'regression'      : 'ranking',
-              'classification'  : None,
-              'dataset_key'     : 'tweets',
-              'solution_file'   : SOLUTION_PATH + 's9_solution.dat',},
-             
-             {'name'            : 's10',
-              'regression'      : 'tree_m5p1',
-              'classification'  : 'naive_bayes2',
-              'dataset_key'     : 'tweets',
-              'solution_file'   : SOLUTION_PATH + 's10_solution.dat',},
-             ]
