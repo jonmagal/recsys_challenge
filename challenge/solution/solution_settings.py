@@ -11,8 +11,11 @@ TEST_SOLUTION   = SOLUTION_PATH + 'test_solution.dat'
 RESULTS_FILE    = PATH + 'results.csv'
 
 DATASETS_CONF = {'tweets':
-                 {'training_file'   : DATASET_PATH + 'training_engagement.csv',
-                  'test_file'       : DATASET_PATH + 'test_engagement.csv'},
+                 {'training_file'   : DATASET_PATH + 'tweets_training.csv',
+                  'test_file'       : DATASET_PATH + 'tweets_test.csv'},
+                 'imdb':
+                 {'training_file'   : DATASET_PATH + 'imdb_training.csv',
+                  'test_file'       : DATASET_PATH + 'imdb_test_engagement.csv'},
                  }
 
 REGRESSORS_CONF = {'linear_regression1':

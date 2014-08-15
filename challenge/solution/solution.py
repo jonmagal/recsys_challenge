@@ -6,7 +6,7 @@ Created on 24/07/2014
 @author: Jonathas Magalhães
 '''
 from challenge.solution.solution_settings import EVALUATOR, TEST_SOLUTION, RESULTS_FILE, CLASSIFIERS_CONF,\
-    REGRESSORS_CONF
+    REGRESSORS_CONF, DATASETS_CONF
 
 import os.path
 import numpy as np
@@ -125,7 +125,7 @@ class SolutionManager():
     def _set_solutions(self):
         classifier_keys = ['None'] + CLASSIFIERS_CONF.keys() + ['votation']
         regression_keys = REGRESSORS_CONF.keys() + ['mean', 'median', 'ranking'] 
-        datasets_keys   = ['tweets']
+        datasets_keys   = DATASETS_CONF.keys()
         
         solutions_combinations = itertools.product(classifier_keys, regression_keys, datasets_keys)
         i = 0
