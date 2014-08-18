@@ -15,7 +15,7 @@ DATASETS_CONF = {'tweets':
                   'test_file'       : DATASET_PATH + 'tweets_test.csv'},
                  'imdb':
                  {'training_file'   : DATASET_PATH + 'imdb_training.csv',
-                  'test_file'       : DATASET_PATH + 'imdb_test_engagement.csv'},
+                  'test_file'       : DATASET_PATH + 'imdb_test.csv'},
                  }
 
 REGRESSORS_CONF = {'linear_regression1':

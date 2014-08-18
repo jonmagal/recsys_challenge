@@ -74,7 +74,7 @@ class Solution():
             print 'Solution ' + self.name + ' ' + self.classification + ' ' + self.regression + ' already created.'
             return
         elif self.classification == 'None':
-            models  = models_manager.get_models(model_key = self.regression)
+            models  = models_manager.get_models(dataset = dataset, model_key = self.regression)
             if len(models) == 1:
                 discretize_solution(file_in = models[0].prediction_file, file_out = self.solution_file)
             else:
@@ -89,8 +89,8 @@ class Solution():
                 regression  = map(lambda *args: self._combine_regressions(*args), *regressions)
                 discretize_solution(prediction_in = regression, file_out = self.solution_file)
         else:
-            regression_models       = models_manager.get_models(model_key = self.regression)
-            classification_models   = models_manager.get_models(model_key = self.classification, 
+            regression_models       = models_manager.get_models(dataset = dataset, model_key = self.regression)
+            classification_models   = models_manager.get_models(dataset = dataset, model_key = self.classification, 
                                                                 model_type = 'classifier')
             regression_solution     = read_sheet(file_name = regression_models[0].prediction_file)
             
@@ -127,11 +127,12 @@ class SolutionManager():
         regression_keys = REGRESSORS_CONF.keys() + ['mean', 'median', 'ranking'] 
         datasets_keys   = DATASETS_CONF.keys()
         
-        solutions_combinations = itertools.product(classifier_keys, regression_keys, datasets_keys)
+        solutions_combinations = itertools.product(datasets_keys, classifier_keys, regression_keys )
         i = 0
-        for classification, regression, dataset_key in solutions_combinations:
-            i += 1
+        for dataset_key, classification, regression in solutions_combinations:
             
+            i += 1
+
             solution_obj                = Solution()
             solution_obj.name           = 's' + str(i)
             solution_obj.regression     = regression
