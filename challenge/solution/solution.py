@@ -70,9 +70,11 @@ class Solution():
                
     def create_solution(self, dataset):
         models_manager = ModelManager()
-        if os.path.isfile(self.solution_file):
-            print 'Solution ' + self.name + ' ' + self.classification + ' ' + self.regression + ' already created.'
-            return
+        if False:
+            pass 
+        #if os.path.isfile(self.solution_file):
+        #    print 'Solution ' + self.name + ' ' + self.classification + ' ' + self.regression + ' already created.'
+        #    return
         elif self.classification == 'None':
             models  = models_manager.get_models(dataset = dataset, model_key = self.regression)
             if len(models) == 1:
