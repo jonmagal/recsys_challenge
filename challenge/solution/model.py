@@ -6,7 +6,7 @@ Created on 07/08/2014
 @author: Jonathas Magalhães
 '''
 
-from challenge.settings import DATASET_PATH
+from challenge.settings import DATASET_PATH, MODEL_PATH, PREDICTION_PATH
 from challenge.solution.solution_settings import REGRESSORS_CONF, CLASSIFIERS_CONF
 
 from weka.classifiers       import Classifier, Evaluation
@@ -72,7 +72,7 @@ class Model(object):
             
 class ModelManager(object):
     
-    def get_models(self, model_key = 'None', model_type = 'regressor'):
+    def get_models(self, dataset, model_key = 'None', model_type = 'regressor'):
         models_conf = None
         if model_type == 'regressor':
             models_conf = REGRESSORS_CONF
@@ -80,26 +80,28 @@ class ModelManager(object):
             models_conf = CLASSIFIERS_CONF
         
         if model_key == 'votation' or model_key == 'mean' or model_key == 'median' or model_key == 'ranking' or model_key == 'sum' or model_key == 'None':
-            return self._set_models(models_conf.values())
+            return self._set_models(dataset, models_conf.values())
         else:
-            return self._set_models([models_conf[model_key]])
+            return self._set_models(dataset, [models_conf[model_key]])
             
-    def _set_models(self, models_conf_list):
+    def _set_models(self, dataset, models_conf_list):
         models = []
         for model in models_conf_list:
             model_obj = Model()
             model_obj.name              = model['name']
             model_obj.classname         = model['classname']
             model_obj.options           = model['options']
-            model_obj.model_file        = model['model_file']
-            model_obj.prediction_file   = model['prediction_file']
-            model_obj.solution_file     = model['solution_file']
+            
+            #model_obj.model_file        = model['model_file']
+            model_obj.model_file        = MODEL_PATH + model_obj.name + '_' + dataset.dataset_key + '.model'
+            model_obj.prediction_file   = PREDICTION_PATH + model_obj.name + '_' + dataset.dataset_key + '_prediction.dat'
+            #model_obj.solution_file     = model['solution_file']
             models.append(model_obj)
         return models
     
     def train_models(self, dataset):
-        predictors  = self.get_models()
-        classifiers = self.get_models(model_type = 'classifier')
+        predictors  = self.get_models(dataset = dataset)
+        classifiers = self.get_models(dataset = dataset, model_type = 'classifier')
         
         for predictor in predictors:
             predictor.train(dataset.training_data_regression)
@@ -108,8 +110,8 @@ class ModelManager(object):
             classifier.train(dataset.training_data_classification)
             
     def test_models(self, dataset):
-        predictors  = self.get_models()
-        classifiers = self.get_models(model_type = 'classifier')
+        predictors  = self.get_models(dataset = dataset)
+        classifiers = self.get_models(dataset = dataset, model_type = 'classifier')
         
         for predictor in predictors:
             predictor.test(dataset.test_data_regression)

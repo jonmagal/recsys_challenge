@@ -15,7 +15,7 @@ DATASETS_CONF = {'tweets':
                   'test_file'       : DATASET_PATH + 'tweets_test.csv'},
                  'imdb':
                  {'training_file'   : DATASET_PATH + 'imdb_training.csv',
-                  'test_file'       : DATASET_PATH + 'imdb_test_engagement.csv'},
+                  'test_file'       : DATASET_PATH + 'imdb_test.csv'},
                  }
 
 REGRESSORS_CONF = {'linear_regression1':
@@ -103,9 +103,16 @@ CLASSIFIERS_CONF = {'naive_bayes1':
                     'ibk1':
                     {'name'            : 'ibk1',
                     'classname'        : 'weka.classifiers.lazy.IBk',
-                    'options'          : ['-K', '11',],
-                    'model_file'       : MODEL_PATH + 'ibk1.model',
-                    'prediction_file'  : PREDICTION_PATH + 'ibk1_prediction.dat',
-                    'solution_file'    : SOLUTION_PATH + 'ibk1_solution.dat', },
+                    'options'          : ['-K', '11',], },
+                    
+                    'ibk2':
+                    {'name'            : 'ibk2',
+                    'classname'        : 'weka.classifiers.lazy.IBk',
+                    'options'          : ['-K', '51',], },
+                    
+                    'ibk3':
+                    {'name'            : 'ibk3',
+                    'classname'        : 'weka.classifiers.lazy.IBk',
+                    'options'          : ['-K', '101',], },
                     
                     } 
