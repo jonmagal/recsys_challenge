@@ -94,7 +94,7 @@ class Solution():
                                                                 model_type = 'classifier')
             regression_solution     = read_sheet(file_name = regression_models[0].prediction_file)
             
-            if self.classification == 'majority':
+            if self.classification == 'voting':
                 classification_solutions = [read_sheet(file_name = classification.prediction_file) 
                                             for classification in classification_models]
                 solution = map(lambda r, *c: self._combine_classifications_regression(r, *c), regression_solution, 
@@ -123,7 +123,7 @@ class SolutionManager():
                 self._train_test_models(dataset)
         
     def _set_solutions(self):
-        classifier_keys = ['None'] + CLASSIFIERS_CONF.keys() + ['votation']
+        classifier_keys = ['None'] + CLASSIFIERS_CONF.keys() + ['voting']
         regression_keys = REGRESSORS_CONF.keys() + ['mean', 'median', 'ranking'] 
         datasets_keys   = DATASETS_CONF.keys()
         
@@ -158,7 +158,7 @@ class SolutionManager():
         models_manager = ModelManager()
         dataset = self.datasets['tweets']
         print dataset
-        classification_models   = models_manager.get_models(model_key = 'votation', model_type = 'classifier')
+        classification_models   = models_manager.get_models(model_key = 'voting', model_type = 'classifier')
         for classification in classification_models:
             classification.test_evaluate(dataset.test_data_classification)
     
