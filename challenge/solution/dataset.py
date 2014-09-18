@@ -16,6 +16,9 @@ class DataSet(object):
     training_file   = None
     test_file       = None
     
+    empty_solution  = None
+    test_solution   = None
+    
     training_data_regression    = None
     test_data_regression        = None  
           
@@ -34,18 +37,21 @@ class DataSet(object):
         dataset_conf = DATASETS_CONF[self.dataset_key]
         self.training_file  = dataset_conf['training_file']
         self.test_file      = dataset_conf['test_file']
+        self.empty_solution = dataset_conf['empty_solution']
+        self.test_solution  = dataset_conf['test_solution']
+    
     
     def set_prediction_dataset(self): 
-        if self.training_data_regression == None:
+        if self.training_data_regression == None and self.training_file != None:
             self.training_data_regression = self._load_data(dfile = self.training_file)
-        if self.test_data_regression == None:
+        if self.test_data_regression == None and self.test_file != None:
             self.test_data_regression = self._load_data(dfile = self.test_file)
     
     def set_classification_dataset(self):
         self.set_prediction_dataset()
-        if self.training_data_classification == None:
+        if self.training_data_classification == None and self.training_file != None:
             self.training_data_classification = self._pre_process(dataset = self.training_data_regression)
-        if self.test_data_classification == None:
+        if self.test_data_classification == None and self.test_file != None:
             self.test_data_classification = self._pre_process(dataset = self.test_data_regression)
         
     def _pre_process(self, dataset):   

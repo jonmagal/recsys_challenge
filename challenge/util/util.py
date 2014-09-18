@@ -135,30 +135,61 @@ def convert_twitter_time(date):
     td = time.strptime(date,'%a %b %d %H:%M:%S +0000 %Y')
     return time.mktime(td)
     
-def create_subdataset(the_dataset_file, output_file):
-    todos   = read_the_dataset(the_dataset_file)
-    title   = ['id_move', 'movie_rating', 'crawled_time', 'tweet_time', 'followers_count', 'statuses_count', 
-             'favourites_count', 'language', 'engagement']
-    content = []
+def create_empty_solution(the_dataset_file, output_file):
+    try:
+        todos   = read_the_dataset(the_dataset_file)
+        title   = ['userid', 'tweetid']
     
-    for todo in todos:
-        id_move             = int(todo[1])
-        movie_rating        = int(todo[2]) 
-        crawled_time        = int(todo[3])
-        tweet_time          = int(convert_twitter_time(todo[4]['created_at']))
-        followers_count     = int(todo[4]['user']['followers_count'])
-        statuses_count      = int(todo[4]['user']['statuses_count'])
-        favourites_count    = int(todo[4]['user']['favourites_count'])
-        language            = str(todo[4]['user']['lang'])
-        retweet_count       = int(todo[4]['retweet_count'])
-        favorite_count      = int(todo[4]['favorite_count'])
-        engagement          = retweet_count + favorite_count
+        content = []
         
-        row = [id_move, movie_rating, crawled_time, tweet_time, followers_count, statuses_count, favourites_count, 
-               language, engagement]
-        content.append(row)
-    save_sheet(file_name = output_file, content = content, title = title)
-
+        for todo in todos:
+            user_id     = int(todo[0])
+            tweet_id    = int(todo[4]['id'])
+            
+            row = [user_id, tweet_id]
+            
+            content.append(row)
+        save_sheet(file_name = output_file, content = content, title = title)
+    except Exception, e:
+        print e
+        print todo
+        return
+    
+def create_subdataset(the_dataset_file, output_file, final = False):
+    try:
+        todos   = read_the_dataset(the_dataset_file)
+        title   = ['id_move', 'movie_rating', 'crawled_time', 'tweet_time', 'followers_count', 'statuses_count', 
+                   'favourites_count', 'engagement']
+             
+        content = []
+        
+        for todo in todos:
+            id_move             = int(todo[1])
+            movie_rating        = int(todo[2]) 
+            crawled_time        = int(todo[3])
+            tweet_time          = int(convert_twitter_time(todo[4]['created_at']))
+            followers_count     = int(todo[4]['user']['followers_count'])
+            statuses_count      = int(todo[4]['user']['statuses_count'])
+            favourites_count    = int(todo[4]['user']['favourites_count'])
+            #language            = str(todo[4]['user']['lang'])
+            #retweet_count       = int(todo[4]['retweet_count'])
+            #favorite_count      = int(todo[4]['favorite_count'])
+            if final:
+                engagement          = 0
+            else:
+                retweet_count       = int(todo[4]['retweet_count'])
+                favorite_count      = int(todo[4]['favorite_count'])
+                engagement          = retweet_count + favorite_count
+            
+            row = [id_move, movie_rating, crawled_time, tweet_time, followers_count, statuses_count, 
+                   favourites_count, engagement]
+            
+            content.append(row)
+        save_sheet(file_name = output_file, content = content, title = title)
+    except Exception, e:
+        print e
+        print todo
+        return
 """
 API IMDbPy - http://imdbpy.sourceforge.net/
 

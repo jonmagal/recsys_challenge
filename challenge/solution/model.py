@@ -29,31 +29,31 @@ class Model(object):
     model_file          = None
     prediction_file     = None
     
-    def train(self, training_data):
+    def train_model(self, training_data):
         if os.path.isfile(self.model_file):
             print 'Model ' + self.name + ' already trained.'
         else:
-            print 'Starting to train model ' + self.name + '.'
+            print 'Starting to train_model model ' + self.name + '.'
             model_weka = Classifier(classname = self.classname, options = self.options) 
             
             model_weka.build_classifier(data = training_data)
             serialization.write(filename = self.model_file, jobject = model_weka)
             print 'Model ' + self.name + ' trained and saved.'
             
-    def test(self, test_data):
+    def test_model(self, test_data, empty_solution):
         if os.path.isfile(self.prediction_file):
             print 'Model ' + self.name + ' already tested.'
         elif not os.path.isfile(self.model_file):
             print 'Impossible testing this model. It should be trained first.'
         else: 
-            print 'Starting to test model ' + self.name + '.'
+            print 'Starting to test_model model ' + self.name + '.'
             model_weka = Classifier(jobject = serialization.read(self.model_file)) 
             evaluation = Evaluation(data = test_data)
             evaluation.test_model(classifier = model_weka, data = test_data)
             
             predictions = evaluation.predictions()
-            rows        = read_sheet(file_name = DATASET_PATH + 'empty_real_solution.dat')
-            solutions = []
+            rows        = read_sheet(file_name = empty_solution)
+            solutions   = []
 
             for row in rows:
                 solution = [row['userid'], row['tweetid'], predictions.pop(0).predicted()]
@@ -104,20 +104,20 @@ class ModelManager(object):
         classifiers = self.get_models(dataset = dataset, model_type = 'classifier')
         
         for predictor in predictors:
-            predictor.train(dataset.training_data_regression)
+            predictor.train_model(dataset.training_data_regression)
             
         for classifier in classifiers:
-            classifier.train(dataset.training_data_classification)
+            classifier.train_model(dataset.training_data_classification)
             
     def test_models(self, dataset):
         predictors  = self.get_models(dataset = dataset)
         classifiers = self.get_models(dataset = dataset, model_type = 'classifier')
         
         for predictor in predictors:
-            predictor.test(dataset.test_data_regression)
+            predictor.test_model(dataset.test_data_regression, dataset.empty_solution)
         
         for classifier in classifiers:
-            classifier.test(dataset.test_data_classification)
+            classifier.test_model(dataset.test_data_classification, dataset.empty_solution)
         
         
         

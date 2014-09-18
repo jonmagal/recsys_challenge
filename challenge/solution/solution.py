@@ -5,7 +5,7 @@ Created on 24/07/2014
 
 @author: Jonathas Magalhães
 '''
-from challenge.solution.solution_settings import EVALUATOR, TEST_SOLUTION, RESULTS_FILE, CLASSIFIERS_CONF,\
+from challenge.solution.solution_settings import EVALUATOR, RESULTS_FILE, CLASSIFIERS_CONF,\
     REGRESSORS_CONF, DATASETS_CONF
 
 import os.path
@@ -16,7 +16,7 @@ from challenge.solution.model   import ModelManager
 from challenge.util.util        import discretize_solution, save_sheet, read_sheet, write_the_solution_file,\
     ranking_prediction
 import itertools
-from challenge.settings import SOLUTION_PATH, DATASET_PATH
+from challenge.settings import SOLUTION_PATH, DATASET_PATH, PREDICTION_PATH
 
 class Solution():
     name            = None
@@ -58,7 +58,7 @@ class Solution():
             v3 = float(regression_solution['engagement'])+1000
         return {'userid': v1, 'tweetid': v2, 'engagement': v3}
         
-    def _combine_classification_regression(self, regression_solution, classification_solution):
+    def combine_classification_regression(self, regression_solution, classification_solution):
         v1 = regression_solution['userid']
         v2 = regression_solution['tweetid']
         if float(classification_solution['engagement']) == 0.0:
@@ -81,6 +81,7 @@ class Solution():
                 discretize_solution(file_in = models[0].prediction_file, file_out = self.solution_file)
             else:
                 if self.regression == 'ranking':
+                    #TODO Change to get by key
                     solutions_models    = [read_sheet(file_name = SOLUTION_PATH + 's' + str(i) + '_solution.dat') 
                                            for i in range(1, 9)]
                     regressions         = map(lambda x: self._order(x), solutions_models)
@@ -103,7 +104,7 @@ class Solution():
                                   classification_solutions)
             else:
                 classification_solution = read_sheet(file_name = classification_models[0].prediction_file)
-                solution    = map(lambda x, y: self._combine_classification_regression(x, y), regression_solution, 
+                solution    = map(lambda x, y: self.combine_classification_regression(x, y), regression_solution, 
                                   classification_solution)
                 
                 
@@ -116,10 +117,10 @@ class SolutionManager():
     solutions   = []
     datasets    = None
     
-    def __init__(self, train = True):
+    def __init__(self, train_model = True):
         self._set_solutions()
         self._set_datasets()
-        if train == True:
+        if train_model == True:
             for dataset_key in self.datasets:
                 dataset = self.datasets[dataset_key] 
                 self._train_test_models(dataset)
@@ -128,7 +129,8 @@ class SolutionManager():
         classifier_keys = ['None'] + CLASSIFIERS_CONF.keys() + ['voting']
         regression_keys = REGRESSORS_CONF.keys() + ['mean', 'median', 'ranking'] 
         datasets_keys   = DATASETS_CONF.keys()
-        
+        datasets_keys.remove('final')
+                
         solutions_combinations = itertools.product(datasets_keys, classifier_keys, regression_keys )
         i = 0
         for dataset_key, classification, regression in solutions_combinations:
@@ -173,7 +175,8 @@ class SolutionManager():
         
         for solution in self.solutions:
             row = []
-            p = Popen(['java','-jar', EVALUATOR, solution.solution_file, TEST_SOLUTION], stdout = PIPE, 
+            test_solution = self.datasets[solution.dataset_key].test_solution
+            p = Popen(['java','-jar', EVALUATOR, solution.solution_file, test_solution], stdout = PIPE, 
                              stderr = STDOUT)
             
             ndcg = 0.0
@@ -185,6 +188,39 @@ class SolutionManager():
             row = [solution.name, solution.regression, solution.classification, solution.dataset_key, ndcg]
             rows.append(row)
         save_sheet(file_name = RESULTS_FILE, content = rows, title = title)
+        
+    def test_best_solution(self, dataset_key = 'tweets', regression = 'linear_regression1', 
+                           classification = 'naive_bayes1'):
+        
+        dataset = self.datasets[dataset_key]
+        
+        models_manager = ModelManager()
+        regression_model       = models_manager.get_models(dataset = dataset, model_key = regression)[0]
+        classification_model   = models_manager.get_models(dataset = dataset, model_key = classification, 
+                                                                model_type = 'classifier')[0]
+        
+        
+        final_dataset = self.datasets['final']
+        
+        regression_model.prediction_file        = PREDICTION_PATH + regression_model.name + '_' + final_dataset.dataset_key + '_prediction.dat'
+        classification_model.prediction_file    = PREDICTION_PATH + classification_model.name + '_' + final_dataset.dataset_key + '_prediction.dat'
+        
+        regression_model.test_model(test_data = final_dataset.test_data_regression, 
+                                    empty_solution = final_dataset.empty_solution)
+        classification_model.test_model(test_data = final_dataset.test_data_classification, 
+                                        empty_solution = final_dataset.empty_solution)
+            
+        regression_solution     = read_sheet(file_name = regression_model.prediction_file)
+        classification_solution = read_sheet(file_name = classification_model.prediction_file)
+        
+        solution_obj = Solution()
+        solution    = map(lambda x, y: solution_obj.combine_classification_regression(x, y), regression_solution, 
+                                  classification_solution)
+                
+        discretize_solution(prediction_in = solution, file_out = DATASET_PATH + 'final_solution.dat')
+         
+        
+        
         
     def test_solution(self):
         rows        = read_sheet(file_name = DATASET_PATH + 'empty_real_solution.dat')

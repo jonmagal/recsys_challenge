@@ -6,91 +6,76 @@ Created on 06/08/2014
 '''
 from challenge.settings import DATASET_PATH, MODEL_PATH, PREDICTION_PATH, SOLUTION_PATH, PATH
 
-EVALUATOR       = SOLUTION_PATH + 'rscevaluator-0.14-jar-with-dependencies.jar'
-TEST_SOLUTION   = SOLUTION_PATH + 'test_solution.dat'
+EVALUATOR       = DATASET_PATH + 'rscevaluator-0.14-jar-with-dependencies.jar'
 RESULTS_FILE    = PATH + 'results.csv'
 
 DATASETS_CONF = {'tweets':
                  {'training_file'   : DATASET_PATH + 'tweets_training.csv',
-                  'test_file'       : DATASET_PATH + 'tweets_test.csv'},
+                  'test_file'       : DATASET_PATH + 'tweets_test.csv',
+                  'empty_solution'  : DATASET_PATH + 'empty_solution.dat', 
+                  'test_solution'   : DATASET_PATH + 'test_solution.dat', },
+    
                  'imdb':
                  {'training_file'   : DATASET_PATH + 'imdb_training.csv',
-                  'test_file'       : DATASET_PATH + 'imdb_test.csv'},
+                  'test_file'       : DATASET_PATH + 'imdb_test.csv',
+                  'empty_solution'  : DATASET_PATH + 'empty_solution.dat', 
+                  'test_solution'   : DATASET_PATH + 'test_solution.dat', },
+                 
+                 'final':
+                 {'training_file'   : None,
+                  'test_file'       : DATASET_PATH + 'final_test.csv',
+                  'empty_solution'  : DATASET_PATH + 'final_empty_solution.dat', 
+                  'test_solution'   : None, },
                  }
 
 REGRESSORS_CONF = {'linear_regression1':
                    {'name'             : 'linear_regression1',
                     'classname'        : 'weka.classifiers.functions.LinearRegression',
-                    'options'          : ['-S', '0', '-R', '1.0E-8'],
-                    'model_file'       : MODEL_PATH + 'linear_regression1.model',
-                    'prediction_file'  : PREDICTION_PATH + 'linear_regression1_prediction.dat',
-                    'solution_file'    : SOLUTION_PATH + 'linear_regression1_solution.dat', },
+                    'options'          : ['-S', '0', '-R', '1.0E-8'], },
                    
                    'linear_regression2':
                    {'name'             : 'linear_regression2',
                     'classname'        : 'weka.classifiers.functions.LinearRegression',
-                    'options'          : ['-S', '1', '-R', '1.0E-8'],
-                    'model_file'       : MODEL_PATH + 'linear_regression2.model',
-                    'prediction_file'  : PREDICTION_PATH + 'linear_regression2_prediction.dat',
-                    'solution_file'    : SOLUTION_PATH + 'linear_regression2_solution.dat', },
+                    'options'          : ['-S', '1', '-R', '1.0E-8'], },
                    
                    'linear_regression3':
                    {'name'             : 'linear_regression3',
                     'classname'        : 'weka.classifiers.functions.LinearRegression',
-                    'options'          : ['-S', '2', '-R', '1.0E-8'],
-                    'model_file'       : MODEL_PATH + 'linear_regression3.model',
-                    'prediction_file'  : PREDICTION_PATH + 'linear_regression3_prediction.dat',
-                    'solution_file'    : SOLUTION_PATH + 'linear_regression3_solution.dat', },
+                    'options'          : ['-S', '2', '-R', '1.0E-8'], },
                    
                    'pace_regression1':
                    {'name'             : 'pace_regression1',
                     'classname'        : 'weka.classifiers.functions.PaceRegression',
-                    'options'          : ['-E', 'eb'],
-                    'model_file'       : MODEL_PATH + 'pace_regression1.model',
-                    'prediction_file'  : PREDICTION_PATH + 'pace_regression1_prediction.dat',
-                    'solution_file'    : SOLUTION_PATH + 'pace_regression1_solution.dat', },
+                    'options'          : ['-E', 'eb'], },
                    
                    'tree_m5p1':
                    {'name'             : 'tree_m5p1',
                     'classname'        : 'weka.classifiers.trees.M5P',
-                    'options'          : [],
-                    'model_file'       : MODEL_PATH + 'tree_m5p1.model',
-                    'prediction_file'  : PREDICTION_PATH + 'tree_m5p1_prediction.dat',
-                    'solution_file'    : SOLUTION_PATH + 'tree_m5p1_solution.dat', },
+                    'options'          : [], },
                    
                    'tree_m5p2':
                    {'name'             : 'tree_m5p2',
                     'classname'        : 'weka.classifiers.trees.M5P',
-                    'options'          : ['-N'],
-                    'model_file'       : MODEL_PATH + 'tree_m5p2.model',
-                    'prediction_file'  : PREDICTION_PATH + 'tree_m5p2_prediction.dat',
-                    'solution_file'    : SOLUTION_PATH + 'tree_m5p2_solution.dat', },
+                    'options'          : ['-N'], },
                } 
 
+'''
+'''
 
 CLASSIFIERS_CONF = {'naive_bayes1':
                     {'name'             : 'naive_bayes1',
                      'classname'        : 'weka.classifiers.bayes.NaiveBayes',
-                     'options'          : ['-K', ],
-                     'model_file'       : MODEL_PATH + 'naive_bayes1.model',
-                     'prediction_file'  : PREDICTION_PATH + 'naive_bayes1_prediction.dat',
-                     'solution_file'    : SOLUTION_PATH + 'naive_bayes1_solution.dat', },
+                     'options'          : ['-K', ], },
                     
                     'naive_bayes2':
                     {'name'             : 'naive_bayes2',
                      'classname'        : 'weka.classifiers.bayes.NaiveBayes',
-                     'options'          : ['-D'],
-                     'model_file'       : MODEL_PATH + 'naive_bayes2.model',
-                     'prediction_file'  : PREDICTION_PATH + 'naive_bayes2_prediction.dat',
-                     'solution_file'    : SOLUTION_PATH + 'naive_bayes2_solution.dat', },
+                     'options'          : ['-D'], },
                     
                     'svm1':
                     {'name'            : 'svm1',
                     'classname'        : 'weka.classifiers.functions.LibSVM',
-                    'options'          : ['-K', '0',],
-                    'model_file'       : MODEL_PATH + 'svm1.model',
-                    'prediction_file'  : PREDICTION_PATH + 'svm1_prediction.dat',
-                    'solution_file'    : SOLUTION_PATH + 'svm1_solution.dat', },
+                    'options'          : ['-K', '0',], },
                     
                     'svm2':
                     {'name'            : 'svm2',
