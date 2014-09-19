@@ -68,7 +68,7 @@ class Solution():
         return {'userid': v1, 'tweetid': v2, 'engagement': v3}
     
                
-    def create_solution(self, dataset):
+    def create_solution(self, dataset, solutions_file = None):
         models_manager = ModelManager()
         if False:
             pass 
@@ -82,9 +82,8 @@ class Solution():
             else:
                 if self.regression == 'ranking':
                     #TODO Change to get by key
-                    solutions_models    = [read_sheet(file_name = SOLUTION_PATH + 's' + str(i) + '_solution.dat') 
-                                           for i in range(1, 9)]
-                    regressions         = map(lambda x: self._order(x), solutions_models)
+                    print solutions_file
+                    regressions         = map(lambda x: self._order(x), solutions_file)
             
                 else:
                     regressions = [read_sheet(file_name = model.prediction_file) for model in models]
@@ -142,9 +141,17 @@ class SolutionManager():
             solution_obj.regression     = regression
             solution_obj.classification = classification
             solution_obj.dataset_key    = dataset_key
-            solution_obj.solution_file  = SOLUTION_PATH + 's' + str(i) + dataset_key + '_' + classification + '_' + regression + '_solution.dat'
+            solution_obj.solution_file  = SOLUTION_PATH + 's' + str(i) + '_' + dataset_key + '_' + classification + '_' + regression + '_solution.dat'
             
             self.solutions.append(solution_obj)
+    
+    def get_solutions_file(self, solution):
+        solutions_file = []
+        print solution.dataset_key, solution.classification, solution.regression
+        for sol in self.solutions:
+            if sol.classification == 'None' and sol.regression != 'ranking' and sol.regression != 'mean' and sol.regression != 'median' and sol.dataset_key == solution.dataset_key:
+                solutions_file.append(sol.solution_file)
+        return solutions_file
     
     def _set_datasets(self): 
         dataset_manager = DatasetManager()
@@ -158,7 +165,10 @@ class SolutionManager():
             
     def create_solutions(self):
         for solution in self.solutions:
-            solution.create_solution(dataset = self.datasets[solution.dataset_key])
+            solutions_file = None
+            if solution.regression == 'ranking':
+                solutions_file = self.get_solutions_file(solution = solution)
+            solution.create_solution(dataset = self.datasets[solution.dataset_key], solutions_file = solutions_file)
     
     def evaluate_classifiers(self):
         models_manager = ModelManager()
