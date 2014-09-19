@@ -79,7 +79,7 @@ class ModelManager(object):
         elif model_type == 'classifier':
             models_conf = CLASSIFIERS_CONF
         
-        if model_key == 'votation' or model_key == 'mean' or model_key == 'median' or model_key == 'ranking' or model_key == 'sum' or model_key == 'None':
+        if model_key == 'voting' or model_key == 'mean' or model_key == 'median' or model_key == 'ranking' or model_key == 'sum' or model_key == 'None':
             return self._set_models(dataset, models_conf.values())
         else:
             return self._set_models(dataset, [models_conf[model_key]])

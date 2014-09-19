@@ -9,23 +9,35 @@ from challenge.settings import DATASET_PATH, MODEL_PATH, PREDICTION_PATH, SOLUTI
 EVALUATOR       = DATASET_PATH + 'rscevaluator-0.14-jar-with-dependencies.jar'
 RESULTS_FILE    = PATH + 'results.csv'
 
+RESULTS_ORDERED_FILE = PATH + 'results_ordered.csv'
+
+"""'tweets_norm':
+                 {'training_file'   : DATASET_PATH + 'tweets_training.csv',
+                  'test_file'       : DATASET_PATH + 'tweets_test.csv',
+                  'empty_solution'  : DATASET_PATH + 'empty_solution.dat', 
+                  'test_solution'   : DATASET_PATH + 'test_solution.dat',  
+                  'norm'            : True, },"""
+                  
 DATASETS_CONF = {'tweets':
                  {'training_file'   : DATASET_PATH + 'tweets_training.csv',
                   'test_file'       : DATASET_PATH + 'tweets_test.csv',
                   'empty_solution'  : DATASET_PATH + 'empty_solution.dat', 
-                  'test_solution'   : DATASET_PATH + 'test_solution.dat', },
+                  'test_solution'   : DATASET_PATH + 'test_solution.dat', 
+                  'norm'            : False, },
     
                  'imdb':
                  {'training_file'   : DATASET_PATH + 'imdb_training.csv',
                   'test_file'       : DATASET_PATH + 'imdb_test.csv',
                   'empty_solution'  : DATASET_PATH + 'empty_solution.dat', 
-                  'test_solution'   : DATASET_PATH + 'test_solution.dat', },
+                  'test_solution'   : DATASET_PATH + 'test_solution.dat',  
+                  'norm'            : False, },
                  
                  'final':
-                 {'training_file'   : None,
+                 {'training_file'   : DATASET_PATH + 'final_training.csv',
                   'test_file'       : DATASET_PATH + 'final_test.csv',
                   'empty_solution'  : DATASET_PATH + 'final_empty_solution.dat', 
-                  'test_solution'   : None, },
+                  'test_solution'   : None,  
+                  'norm'            : False, },
                  }
 
 REGRESSORS_CONF = {'linear_regression1':

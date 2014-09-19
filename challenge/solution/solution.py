@@ -6,7 +6,7 @@ Created on 24/07/2014
 @author: Jonathas Magalhães
 '''
 from challenge.solution.solution_settings import EVALUATOR, RESULTS_FILE, CLASSIFIERS_CONF,\
-    REGRESSORS_CONF, DATASETS_CONF
+    REGRESSORS_CONF, DATASETS_CONF, RESULTS_ORDERED_FILE
 
 import os.path
 import numpy as np
@@ -129,7 +129,7 @@ class SolutionManager():
         classifier_keys = ['None'] + CLASSIFIERS_CONF.keys() + ['voting']
         regression_keys = REGRESSORS_CONF.keys() + ['mean', 'median', 'ranking'] 
         datasets_keys   = DATASETS_CONF.keys()
-        datasets_keys.remove('final')
+        #datasets_keys.remove('final')
                 
         solutions_combinations = itertools.product(datasets_keys, classifier_keys, regression_keys )
         i = 0
@@ -142,7 +142,7 @@ class SolutionManager():
             solution_obj.regression     = regression
             solution_obj.classification = classification
             solution_obj.dataset_key    = dataset_key
-            solution_obj.solution_file  = SOLUTION_PATH + 's' + str(i) + '_solution.dat'
+            solution_obj.solution_file  = SOLUTION_PATH + 's' + str(i) + dataset_key + '_' + classification + '_' + regression + '_solution.dat'
             
             self.solutions.append(solution_obj)
     
@@ -151,6 +151,7 @@ class SolutionManager():
         self.datasets = dataset_manager.get_datasets()
     
     def _train_test_models(self, dataset):
+        print "Training models in the " + dataset.dataset_key + "."
         model = ModelManager()
         model.train_models(dataset)
         model.test_models(dataset)
@@ -176,6 +177,8 @@ class SolutionManager():
         for solution in self.solutions:
             row = []
             test_solution = self.datasets[solution.dataset_key].test_solution
+            if test_solution == None:
+                continue
             p = Popen(['java','-jar', EVALUATOR, solution.solution_file, test_solution], stdout = PIPE, 
                              stderr = STDOUT)
             
@@ -187,7 +190,10 @@ class SolutionManager():
                     break
             row = [solution.name, solution.regression, solution.classification, solution.dataset_key, ndcg]
             rows.append(row)
+        rows_ordered = sorted(rows, key=lambda data: (-int(data[-1]), ))
+        save_sheet(file_name = RESULTS_ORDERED_FILE, content = rows_ordered, title = title)
         save_sheet(file_name = RESULTS_FILE, content = rows, title = title)
+        
         
     def test_best_solution(self, dataset_key = 'tweets', regression = 'linear_regression1', 
                            classification = 'naive_bayes1'):
