@@ -49,7 +49,7 @@ class Solution():
         v2 = classification_solutions[0]['tweetid']
         
         majority        = len(classification_solutions)/2+1
-        votes           = filter(float(classification_solutions['engagement']) == 0, classification_solutions)
+        votes           = filter(lambda x: float(x['engagement']) == 0, classification_solutions)
         number_votes    = len(votes)
         
         if number_votes >= majority:
@@ -68,22 +68,22 @@ class Solution():
         return {'userid': v1, 'tweetid': v2, 'engagement': v3}
     
                
-    def create_solution(self, dataset, solutions_file = None):
+    def create_solution(self, dataset, force, solutions_file = None):
         models_manager = ModelManager()
-        if False:
-            pass 
-        #if os.path.isfile(self.solution_file):
-        #    print 'Solution ' + self.name + ' ' + self.classification + ' ' + self.regression + ' already created.'
-        #    return
+        if os.path.isfile(self.solution_file) and force == False:
+            print 'Solution ' + self.name + ' ' + self.classification + ' ' + self.regression + ' already created.'
+            return
         elif self.classification == 'None':
             models  = models_manager.get_models(dataset = dataset, model_key = self.regression)
             if len(models) == 1:
                 discretize_solution(file_in = models[0].prediction_file, file_out = self.solution_file)
             else:
                 if self.regression == 'ranking':
-                    #TODO Change to get by key
+                    
                     print solutions_file
-                    regressions         = map(lambda x: self._order(x), solutions_file)
+                    solutions_models    = [read_sheet(file_name = solution_file) for solution_file in solutions_file]
+
+                    regressions         = map(lambda x: self._order(x), solutions_models)
             
                 else:
                     regressions = [read_sheet(file_name = model.prediction_file) for model in models]
@@ -94,13 +94,16 @@ class Solution():
             regression_models       = models_manager.get_models(dataset = dataset, model_key = self.regression)
             classification_models   = models_manager.get_models(dataset = dataset, model_key = self.classification, 
                                                                 model_type = 'classifier')
+
             regression_solution     = read_sheet(file_name = regression_models[0].prediction_file)
             
             if self.classification == 'voting':
                 classification_solutions = [read_sheet(file_name = classification.prediction_file) 
                                             for classification in classification_models]
+                
+                #print classification_solutions
                 solution = map(lambda r, *c: self._combine_classifications_regression(r, *c), regression_solution, 
-                                  classification_solutions)
+                                  *classification_solutions)
             else:
                 classification_solution = read_sheet(file_name = classification_models[0].prediction_file)
                 solution    = map(lambda x, y: self.combine_classification_regression(x, y), regression_solution, 
@@ -116,14 +119,14 @@ class SolutionManager():
     solutions   = []
     datasets    = None
     
-    def __init__(self, train_model = True):
+    def __init__(self, train_models = True):
         self._set_solutions()
         self._set_datasets()
-        if train_model == True:
+        if train_models == True:
             for dataset_key in self.datasets:
                 dataset = self.datasets[dataset_key] 
                 self._train_test_models(dataset)
-        
+            
     def _set_solutions(self):
         classifier_keys = ['None'] + CLASSIFIERS_CONF.keys() + ['voting']
         regression_keys = REGRESSORS_CONF.keys() + ['mean', 'median', 'ranking'] 
@@ -141,13 +144,13 @@ class SolutionManager():
             solution_obj.regression     = regression
             solution_obj.classification = classification
             solution_obj.dataset_key    = dataset_key
-            solution_obj.solution_file  = SOLUTION_PATH + 's' + str(i) + '_' + dataset_key + '_' + classification + '_' + regression + '_solution.dat'
+            solution_obj.solution_file  = SOLUTION_PATH + dataset_key + '_' + classification + '_' + regression + '_solution.dat'
             
             self.solutions.append(solution_obj)
     
     def get_solutions_file(self, solution):
         solutions_file = []
-        print solution.dataset_key, solution.classification, solution.regression
+        #print solution.dataset_key, solution.classification, solution.regression
         for sol in self.solutions:
             if sol.classification == 'None' and sol.regression != 'ranking' and sol.regression != 'mean' and sol.regression != 'median' and sol.dataset_key == solution.dataset_key:
                 solutions_file.append(sol.solution_file)
@@ -163,12 +166,13 @@ class SolutionManager():
         model.train_models(dataset)
         model.test_models(dataset)
             
-    def create_solutions(self):
+    def create_solutions(self, force = False):
         for solution in self.solutions:
             solutions_file = None
+            print solution.solution_file 
             if solution.regression == 'ranking':
                 solutions_file = self.get_solutions_file(solution = solution)
-            solution.create_solution(dataset = self.datasets[solution.dataset_key], solutions_file = solutions_file)
+            solution.create_solution(dataset = self.datasets[solution.dataset_key], force = force, solutions_file = solutions_file)
     
     def evaluate_classifiers(self):
         models_manager = ModelManager()
@@ -200,7 +204,7 @@ class SolutionManager():
                     break
             row = [solution.name, solution.regression, solution.classification, solution.dataset_key, ndcg]
             rows.append(row)
-        rows_ordered = sorted(rows, key=lambda data: (-int(data[-1]), ))
+        rows_ordered = sorted(rows, key=lambda data: (-float(data[-1]), ))
         save_sheet(file_name = RESULTS_ORDERED_FILE, content = rows_ordered, title = title)
         save_sheet(file_name = RESULTS_FILE, content = rows, title = title)
         

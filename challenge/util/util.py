@@ -7,7 +7,9 @@ Created on 28/05/2014
 import json
 import os
 
-
+def save_file(file_name, content):
+    with open(file_name, 'w') as file_:
+        file_.write(content)
 
 def read_sheet(file_name, fieldnames = None, delimiter = ",", quotechar = "\n"):
     from csv import DictReader
@@ -208,3 +210,62 @@ def create_subdataset(the_dataset_file, output_file, final = False):
         print todo
         return
 
+def create_subdataset_test(the_dataset_file, output_file, final = False):
+    try:
+        todos   = read_the_dataset(the_dataset_file)
+        title   = ['user_id', 'id_move', 'movie_rating', 'crawled_time', 'tweet_time', 'followers_count', 'statuses_count', 
+                   'favourites_count', 'engagement']
+             
+        content = []
+        
+        for todo in todos:
+            user_id             = int(todo[0])
+            id_move             = int(todo[1])
+            movie_rating        = int(todo[2]) 
+            crawled_time        = int(todo[3])
+            tweet_time          = todo[4]['created_at']
+            followers_count     = int(todo[4]['user']['followers_count'])
+            statuses_count      = int(todo[4]['user']['statuses_count'])
+            favourites_count    = int(todo[4]['user']['favourites_count'])
+            #language            = str(todo[4]['user']['lang'])
+            #retweet_count       = int(todo[4]['retweet_count'])
+            #favorite_count      = int(todo[4]['favorite_count'])
+            if final:
+                engagement          = 0
+            else:
+                retweet_count       = int(todo[4]['retweet_count'])
+                favorite_count      = int(todo[4]['favorite_count'])
+                engagement          = retweet_count + favorite_count
+            
+            row = [user_id, id_move, movie_rating, crawled_time, tweet_time, followers_count, statuses_count, 
+                   favourites_count, engagement]
+            
+            content.append(row)
+        
+        #content_ordered = sorted(content, key=lambda data: (-int(data[0]), ))
+        save_sheet(file_name = output_file, content = content, title = title)
+    except Exception, e:
+        print e
+        print todo
+        return
+    
+def create_subdataset_test2(the_dataset_file, output_file, final = False):
+    try:
+        todos   = read_the_dataset(the_dataset_file)
+        title   = ['user_id', 'tweet_time']
+             
+        content = []
+        
+        for todo in todos:
+            user_id             = int(todo[0])
+            tweet_time          = todo[4]['created_at']
+            row = [user_id, tweet_time]
+            
+            content.append(row)
+        
+        #content_ordered = sorted(content, key=lambda data: (-int(data[0]), ))
+        save_sheet(file_name = output_file, content = content, title = title)
+    except Exception, e:
+        print e
+        print todo
+        return

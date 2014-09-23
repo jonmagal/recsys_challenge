@@ -84,6 +84,11 @@ CLASSIFIERS_CONF = {'naive_bayes1':
                      'classname'        : 'weka.classifiers.bayes.NaiveBayes',
                      'options'          : ['-D'], },
                     
+                    'naive_bayes3':
+                    {'name'             : 'naive_bayes3',
+                     'classname'        : 'weka.classifiers.bayes.NaiveBayes',
+                     'options'          : [], },
+                    
                     'svm1':
                     {'name'            : 'svm1',
                     'classname'        : 'weka.classifiers.functions.LibSVM',
@@ -111,5 +116,10 @@ CLASSIFIERS_CONF = {'naive_bayes1':
                     {'name'            : 'ibk3',
                     'classname'        : 'weka.classifiers.lazy.IBk',
                     'options'          : ['-K', '101',], },
+                    
+                    'j48':
+                    {'name'            : 'j48',
+                    'classname'        : 'weka.classifiers.trees.J48',
+                    'options'          : [], },
                     
                     } 
